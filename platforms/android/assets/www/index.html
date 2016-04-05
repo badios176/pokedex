@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Pokedex</title>
+        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
+        <meta name='viewport' content='width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no'/>
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+        <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+        <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+        <script>
+            var pokemonLimit = 50;
+            var currentPage = 0;
+            var alreadyRequesting = false;
+            var pokemonDetailID = null;
+            var storePosition = {
+                topCoordinate: null
+            };
+
+            $(document).ready(function () {
+                $(window).scroll(function () {
+                    if ($(window).scrollTop() + $(window).height() > $(document).height() - 400) {
+                        makePokemonRequest();
+                    }
+                });
+                makePokemonRequest();
+            });
+            
+            $(document).on('pageshow', '#home', function () {
+                if (storePosition.topCoordinate !== null) {
+                    $.mobile.silentScroll(storePosition.topCoordinate);
+                }
+
+            });
+
+            $(document).on('pagebeforeshow', '#detail-pokemon', function () {
+                storePosition.topCoordinate = $(this).offset().top;
+                /*
+                 if (!alreadyRequesting) {
+                 alreadyRequesting = true;
+                 $.mobile.loading('show');
+                 $.get('http://pokeapi.co/api/v2/pokemon/' + pokemonDetailID, function (data) {
+                 var data = JSON.parse(data);
+                 alert(data.name);
+                 $.mobile.loading('hide');
+                 alreadyRequesting = false;
+                 });
+                 $.mobile.changePage("#detail-pokemon");
+                 }*/
+            });
+            /*
+             $(document).on("pageinit", "#detail-pokemon", function (event) {
+             alert("This page was just enhanced by jQuery Mobile!");
+             });*/
+
+            /*
+             $(document).on('pagebeforeshow', '#second', function () {
+             $(document).on('click', '#change-page-button', function () {
+             // store some data
+             if (typeof (Storage) !== "undefined") {
+             localStorage.firstname = "Dragan";
+             localStorage.lastname = "Gaic";
+             }
+             // Change page
+             $.mobile.changePage("#second");
+             });
+             });
+             */
+            function makePokemonRequest() {
+                if (!alreadyRequesting) {
+                    alreadyRequesting = true;
+                    $.mobile.loading('show');
+                    var offset = (pokemonLimit * currentPage);
+                    $.get('http://pokeapi.co/api/v2/pokemon-form/?limit=' + pokemonLimit + '&offset=' + offset, function (data) {
+                        var output = "";
+                        $.each(data.results, function (index, value) {
+                            var url = value.url;
+                            var id = parseInt(url.replace('http://pokeapi.co/api/v2/pokemon-form/', ''));
+                            output += '<li><a class="detail-pokemon" id="' + id + '" href="#detail-pokemon"><img src="http://pokeapi.co/media/sprites/pokemon/' + id + '.png" />' + value.name + '</a></li>';
+                        });
+                        $("#pokemons").append(output).listview('refresh');
+                        $.mobile.loading('hide');
+
+                        $('.detail-pokemon').click(function () {
+                            var id = $(this).attr("id");
+                            pokemonDetailID = id;
+                        });
+                        currentPage += 1;
+                        alreadyRequesting = false;
+                    });
+                }
+            }
+        </script>
+        <style>
+            #pokemons ul li{
+                padding:10px !important;
+            }
+
+        </style>
+    </head>
+    <body>     
+        <div data-role='page' id='home'>
+            <div data-role="panel" id="mypanel">
+                This is my panel
+            </div>
+            <div data-role="header" data-position="fixed">
+                <a href="#mypanel" class="ui-btn ui-btn-icon-left ui-icon-bars">Default panel</a>
+                <h3>Pokedex</h3>
+            </div>
+            <div data-role='content'>
+                <div class='example-wrapper'>
+                    <ul data-role="listview" id="pokemons">
+
+                    </ul>
+                </div>
+            </div>
+            <div data-role="footer" data-position="fixed">
+                <h1>Fixed Footer!</h1>
+            </div>              
+        </div>
+        <div data-role='page' id='detail-pokemon'>
+            <a href="#home">back</a>
+            <div id="pokemonResponse">
+
+            </div>
+        </div>
+    </body>
+</html>   
