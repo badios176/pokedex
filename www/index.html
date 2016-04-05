@@ -15,29 +15,86 @@
             var storePosition = {
                 topCoordinate: null
             };
+            var storage = window.localStorage;
+            var hiddenPokemons = [];
+            var latlong = {
+                denbosch: {
+                    toLat: 51.714633,
+                    fromLat: 51.675263,
+                    fromLong: 5.247345,
+                    toLong: 5.365448},
+                uden: {
+                    ToLat: 51.671005,
+                    fromLat: 51.645873,
+                    fromLong: 5.596161,
+                    toLong: 5.649719}
+            };
+
             $(document).ready(function () {
-                $(document).on('scrollstart', function () {     //or 'scrollstop'
+                makePokemonRequest();
+                hidePokemons();
+                $(document).on('pagebeforeshow', '#detail-pokemon', function () {
+                    storePosition.topCoordinate = $(this).offset().top;
+                });
+
+                $("#pokemons").on('scrollstart', function () {     //or 'scrollstop'
                     $("#scrollNumber").html($(window).scrollTop());
                     if ($(window).scrollTop() + $(window).height() > $(document).height() - 400) {
                         makePokemonRequest();
                     }
-                });
-            });
-
-
-
-            $(document).ready(function () {
-                makePokemonRequest();
-                $(document).on('pageshow', '#home', function () {
-                    if (storePosition.topCoordinate !== null) {
-                        $.mobile.silentScroll(storePosition.topCoordinate);
+                    if (storage.getItem("settingsName")) {
+                        $("#settingsName").val(storage.getItem("settingsName"));
                     }
                 });
 
-                $(document).on('pagebeforeshow', '#detail-pokemon', function () {
-                    storePosition.topCoordinate = $(this).offset().top;
+                $("#saveSettings").tap(function () {
+                    storage.setItem("settingsName", $("#settingsName").val());
+                    alert("Opgeslagen");
                 });
+
+                var onSuccess = function (position) {
+                    $("#locResp").html('Latitude: ' + position.coords.latitude + '\n' +
+                            'Longitude: ' + position.coords.longitude + '\n' +
+                            'Altitude: ' + position.coords.altitude + '\n' +
+                            'Accuracy: ' + position.coords.accuracy + '\n' +
+                            'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
+                            'Heading: ' + position.coords.heading + '\n' +
+                            'Speed: ' + position.coords.speed + '\n' +
+                            'Timestamp: ' + position.timestamp + '\n');
+                };
+                function onError(error) {
+                    $("#locResp").html('code: ' + error.code + '\n' +
+                            'message: ' + error.message + '\n');
+                }
+                var watchID = navigator.geolocation.watchPosition(onSuccess, onError, {timeout: 1000});
             });
+
+            function hidePokemons() {
+                var randomOffset = getRandomArbitrary(10, 700);
+
+
+                $.get('http://pokeapi.co/api/v2/pokemon-form/?limit=10&offset=' + Math.floor(randomOffset), function (data) {
+                    var output = "";
+                    $.each(data.results, function (index, value) {
+                        var url = value.url;
+                        var id = parseInt(url.replace('http://pokeapi.co/api/v2/pokemon-form/', ''));
+                        var image = 'http://pokeapi.co/media/sprites/pokemon/' + id + '.png';
+
+                        var generateLat = getRandomArbitrary(latlong.uden.fromLat, latlong.uden.ToLat);
+                        var generateLong = getRandomArbitrary(latlong.uden.fromLong, latlong.uden.toLong);
+
+                        var pokemon = {id: id, name: value.name, image: image, lat: generateLat, long: generateLong}
+                        hiddenPokemons.push(pokemon);
+                        output += '<li><img src="' + pokemon.image + '" />' + pokemon.name + ' - ' + pokemon.lat + ':' + pokemon.long + '<button>Vang</button></li>';
+                    });
+                    $("#catchPokemons").append(output).listview('refresh');
+                });
+            }
+
+            function getRandomArbitrary(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
             function makePokemonRequest() {
                 if (!alreadyRequesting) {
                     alreadyRequesting = true;
@@ -48,7 +105,7 @@
                         $.each(data.results, function (index, value) {
                             var url = value.url;
                             var id = parseInt(url.replace('http://pokeapi.co/api/v2/pokemon-form/', ''));
-                            output += '<li><a class="detail-pokemon" id="' + id + '" href="#detail-pokemon"><img src="http://pokeapi.co/media/sprites/pokemon/' + id + '.png" />' + value.name + '</a></li>';
+                            output += '<li><a class="detail-pokemon" id="' + id + '" href="#pokemon-detail"><img src="http://pokeapi.co/media/sprites/pokemon/' + id + '.png" />' + value.name + '</a></li>';
                         });
                         $("#pokemons").append(output).listview('refresh');
                         $.mobile.loading('hide');
@@ -70,26 +127,16 @@
 
         </style>
     </head>
-    <body>     
+    <body>
         <div data-role='page' id='home'>
-            <div data-role="header" data-position="fixed">
-                <a href="#home">Back</a>
-                <h3>Pokedex</h3>
-            </div>
-            <div data-role='content'>
-                <div class='example-wrapper'>
-                    <h1>Pokemon Name</h1>
-                    <div class="row">
-                        <img src="http://pokeapi.co/media/sprites/pokemon/back/1.png" />
-                        <img src="http://pokeapi.co/media/sprites/pokemon/back/1.png" />
-                        <img src="http://pokeapi.co/media/sprites/pokemon/back/1.png" />
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div data-role='page' id='home2'>
             <div data-role="panel" id="mypanel">
-                This is my panel
+                <ul data-role="listview">
+                    <li><a href="#home">Alle pokemons</a></li>
+                    <li><a href="#my-pokemons">Mijn pokemons</a></li>
+                    <li><a href="#location">Vang Pokemon</a></li>
+                    <li><a href="#settings">Instellingen</a></li>
+                    <li><a href="http://pokeapi.co/">Pokedex api</a></li>
+                </ul>
             </div>
             <div data-role="header" data-position="fixed">
                 <a href="#mypanel" class="ui-btn ui-btn-icon-left ui-icon-bars">Default panel</a>
@@ -107,6 +154,72 @@
                 <h1>Fixed Footer!</h1>
             </div>              
         </div>
+        <div data-role='page' id='pokemon-detail'>
+            <div data-role="header" data-position="fixed">
+                <a href="" onclick="$.mobile.back()">Back</a>
+                <h3>Pokedex</h3>
+            </div>
+            <div data-role='content'>
+                <div class='example-wrapper'>
+                    <h1>Pokemon Name</h1>
+                    <div class="row">
+                        <img src="http://pokeapi.co/media/sprites/pokemon/back/1.png" />
+                        <img src="http://pokeapi.co/media/sprites/pokemon/back/1.png" />
+                        <img src="http://pokeapi.co/media/sprites/pokemon/back/1.png" />
+                    </div>
+                    <p><b>Experience:</b><span ></span></p>
+                </div>
+            </div>
+        </div>
+        <div data-role='page' id='my-pokemons'>
+            my pokemons
+        </div>
+        <div data-role='page' id='location'>
+            <div data-role="panel" id="mypanel3">
+                <ul data-role="listview">
+                    <li><a href="#home">Alle pokemons</a></li>
+                    <li><a href="#my-pokemons">Mijn pokemons</a></li>
+                    <li><a href="#location">Vang Pokemon</a></li>
+                    <li><a href="#settings">Instellingen</a></li>
+                    <li><a href="http://pokeapi.co/">Pokedex api</a></li>
+                </ul>
+            </div>
+            <div data-role="header" data-position="fixed">
+                <a href="#mypanel3" class="ui-btn ui-btn-icon-left ui-icon-bars">Default panel</a>
+                <h3>Vang pokemon</h3>
+            </div>
+            <div data-role='content'>
+                <div class='example-wrapper'>
+                    <ul data-role="listview" id="catchPokemons">
 
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div data-role='page' id='settings'>
+            <div data-role="panel" id="mypanel2">
+                <ul data-role="listview">
+                    <li><a href="#home">Alle pokemons</a></li>
+                    <li><a href="#my-pokemons">Mijn pokemons</a></li>
+                    <li><a href="#settings">Instellingen</a></li>
+                    <li><a href="http://pokeapi.co/">Pokedex api</a></li>
+                </ul>
+            </div>
+            <div data-role="header" data-position="fixed">
+                <a href="#mypanel2" class="ui-btn ui-btn-icon-left ui-icon-bars">Default panel</a>
+                <h3>Instellingen</h3>
+                <div id="scrollNumber"></div>
+            </div>
+            <div data-role='content'>
+                <label>Naam</label>
+                <input type="text" id="settingsName" value="" />
+                <input type="button" class="btn" id="saveSettings" value="Opslaan" />
+            </div>
+        </div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript">
+                    app.initialize();
+        </script>
     </body>
 </html>   
