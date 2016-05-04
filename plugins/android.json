@@ -7,10 +7,16 @@
         "files": {}
     },
     "installed_plugins": {
+        "cordova-plugin-geolocation": {
+            "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
+        },
+        "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
+        },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
         },
-        "cordova-plugin-geolocation": {
+        "cordova-plugin-inappbrowser": {
             "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
         }
     },

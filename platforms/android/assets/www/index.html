@@ -17,6 +17,9 @@
             };
             var storage = window.localStorage;
             var hiddenPokemons = [];
+
+            var pokemonsCatched = [];
+
             var latlong = {
                 denbosch: {
                     toLat: 51.714633,
@@ -31,19 +34,71 @@
             };
 
             $(document).ready(function () {
+
+                document.addEventListener("deviceready", onDeviceReady, false);
+                function onDeviceReady() {
+                    window.open = cordova.InAppBrowser.open;
+                }
+
+                var storedPokemons = JSON.parse(window.localStorage.getItem("pokemons"));
+                pokemonsCatched = storedPokemons;
+                /*
+                 
+                 */
                 makePokemonRequest();
-                hidePokemons();
+                if (storage.getItem("settingsName")) {
+                    $("#settingsName").val(storage.getItem("settingsName"));
+                }
+
+
                 $(document).on('pagebeforeshow', '#detail-pokemon', function () {
                     storePosition.topCoordinate = $(this).offset().top;
                 });
 
+                $(document).on('pagebeforeshow', '#my-pokemons', function () {
+                    var output = "";
+                    $("#myPokemonList").html("");
+                    $.each(pokemonsCatched, function (index, value) {
+                        output += '<li><a class="detail-pokemon" id="' + value.id + '" href="#pokemon-detail"><img src="http://pokeapi.co/media/sprites/pokemon/' + value.id + '.png" />' + value.name + '</a></li>';
+                    });
+                    $("#myPokemonList").append(output).listview('refresh');
+                });
+
+                var firstTimeTapCheck = false;
+                $(document).on('pagebeforeshow', '#location', function () {
+                    if (!firstTimeTapCheck) {
+                        $('.catch-pokemon').click(function () {
+                            var deleteItem = null;
+                            var id = $(this).attr("pid");
+                            hiddenPokemons.forEach(function (element, index, array) {
+                                if (element.id == id) {
+                                    pokemonsCatched.push(element);
+                                    var newPokemonList = "";
+                                    newPokemonList = '<li><a class="detail-pokemon" id="' + element.id + '" href="#pokemon-detail"><img src="http://pokeapi.co/media/sprites/pokemon/' + element.id + '.png" />' + element.name + '</a></li>';
+                                    $("#myPokemonList").append(newPokemonList).listview('refresh');
+
+
+                                    saveCatchedPokemons();
+                                    $(".pokemon-catch-item").each(function () {
+                                        var pokemonID = $(this).attr("pid");
+                                        if (pokemonID == id) {
+                                            deleteItem = $(this);
+                                        }
+                                    });
+                                }
+                            });
+                            if (deleteItem) {
+                                deleteItem.hide();
+                            }
+                        });
+                        firstTimeTapCheck = true;
+                    }
+                });
+
                 $("#pokemons").on('scrollstart', function () {     //or 'scrollstop'
                     $("#scrollNumber").html($(window).scrollTop());
-                    if ($(window).scrollTop() + $(window).height() > $(document).height() - 400) {
+                    if ($(window).scrollTop() + $(window).height() > $(document).height() - 1000) {
                         makePokemonRequest();
-                    }
-                    if (storage.getItem("settingsName")) {
-                        $("#settingsName").val(storage.getItem("settingsName"));
                     }
                 });
 
@@ -53,25 +108,69 @@
                 });
 
                 var onSuccess = function (position) {
+                    setHiddenPokemons(position);
                     $("#locResp").html('Latitude: ' + position.coords.latitude + '\n' +
-                            'Longitude: ' + position.coords.longitude + '\n' +
-                            'Altitude: ' + position.coords.altitude + '\n' +
-                            'Accuracy: ' + position.coords.accuracy + '\n' +
-                            'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
-                            'Heading: ' + position.coords.heading + '\n' +
-                            'Speed: ' + position.coords.speed + '\n' +
-                            'Timestamp: ' + position.timestamp + '\n');
+                            'Longitude: ' + position.coords.longitude + '\n');
                 };
                 function onError(error) {
                     $("#locResp").html('code: ' + error.code + '\n' +
                             'message: ' + error.message + '\n');
                 }
                 var watchID = navigator.geolocation.watchPosition(onSuccess, onError, {timeout: 1000});
+
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    latlong.uden.fromLat = position.coords.latitude - 0.05;
+                    latlong.uden.ToLat = position.coords.latitude + 0.05;
+                    latlong.uden.fromLong = position.coords.longitude - 0.05;
+                    latlong.uden.toLong = position.coords.longitude + 0.05;
+
+                    hidePokemons(position);
+                }, function (error) {
+                    alert('Uw locatie moet aanstaan om een pokemon te vangen. Zet het aan en herstart de app!');
+                });
             });
 
-            function hidePokemons() {
-                var randomOffset = getRandomArbitrary(10, 700);
+            function saveCatchedPokemons() {
+                window.localStorage.setItem("pokemons", JSON.stringify(pokemonsCatched));
+            }
 
+            function setHiddenPokemons(position) {
+                $(".pokemon-catch-item").each(function () {
+                    var lat = $(this).attr("lat");
+                    var long = $(this).attr("long");
+                    var meters = Math.floor(measure(position.coords.latitude, position.coords.longitude, lat, long));
+                    $(this).attr("meters", meters);
+                    $(this).find('.pokemon-position').html($(this).attr("meters") + ' m');
+                    if (meters < 20000) {
+                        $(this).find('.catch-pokemon').show();
+                    } else {
+                        $(this).find('.catch-pokemon').hide();
+                    }
+                });
+
+                $("#catchPokemons li").sort(sort_pokemon_distance).appendTo('#catchPokemons');
+            }
+
+            function sort_pokemon_distance(a, b) {
+                var aMeter = parseInt($(a).attr("meters"));
+                var bMeter = parseInt($(b).attr("meters"));
+                return (bMeter) < (aMeter) ? 1 : -1;
+            }
+
+            function measure(lat1, lon1, lat2, lon2) {  // generally used geo measurement function
+                var R = 6378.137; // Radius of earth in KM
+                var dLat = (lat2 - lat1) * Math.PI / 180;
+                var dLon = (lon2 - lon1) * Math.PI / 180;
+                var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                var d = R * c;
+                return d * 1000; // meters
+            }
+
+            function hidePokemons(position) {
+                var randomOffset = getRandomArbitrary(10, 700);
 
                 $.get('http://pokeapi.co/api/v2/pokemon-form/?limit=10&offset=' + Math.floor(randomOffset), function (data) {
                     var output = "";
@@ -79,15 +178,19 @@
                         var url = value.url;
                         var id = parseInt(url.replace('http://pokeapi.co/api/v2/pokemon-form/', ''));
                         var image = 'http://pokeapi.co/media/sprites/pokemon/' + id + '.png';
-                        
+
                         var generateLat = getRandomArbitrary(latlong.uden.fromLat, latlong.uden.ToLat);
                         var generateLong = getRandomArbitrary(latlong.uden.fromLong, latlong.uden.toLong);
-                        
-                        var pokemon = {id: id, name: value.name, image: image, lat:generateLat, long: generateLong}
-                        hiddenPokemons.push(pokemon);
-                        output += '<li><img src="' + pokemon.image + '" />' + pokemon.name + ' - '+pokemon.lat+':'+pokemon.long+'<button>Vang</button></li>';
+
+                        var pokemon = {id: id, name: value.name, image: image, lat: generateLat, long: generateLong}
+                        if (pokemon.name) {
+                            hiddenPokemons.push(pokemon);
+                            output += '<li pid="' + id + '" id="pokemon' + id + '" class="pokemon-catch-item" lat="' + pokemon.lat + '" long="' + pokemon.long + '"><img src="' + pokemon.image + '" />' + pokemon.name + ' <span class="pokemon-position"></span><button style="display:none"  class="btn catch-pokemon hide" pid="' + pokemon.id + '">Vang</button></li>';
+                        }
                     });
                     $("#catchPokemons").append(output).listview('refresh');
+
+                    setHiddenPokemons(position);
                 });
             }
 
@@ -101,18 +204,32 @@
                     $.mobile.loading('show');
                     var offset = (pokemonLimit * currentPage);
                     $.get('http://pokeapi.co/api/v2/pokemon-form/?limit=' + pokemonLimit + '&offset=' + offset, function (data) {
-                        var output = "";
-                        $.each(data.results, function (index, value) {
-                            var url = value.url;
-                            var id = parseInt(url.replace('http://pokeapi.co/api/v2/pokemon-form/', ''));
-                            output += '<li><a class="detail-pokemon" id="' + id + '" href="#pokemon-detail"><img src="http://pokeapi.co/media/sprites/pokemon/' + id + '.png" />' + value.name + '</a></li>';
-                        });
-                        $("#pokemons").append(output).listview('refresh');
+
+                        initDefaultPokemonList(data.results, "#pokemons");
                         $.mobile.loading('hide');
+
+
                         currentPage += 1;
                         alreadyRequesting = false;
+                        navigator.splashscreen.hide();
+
+
                     });
                 }
+            }
+
+            function initDefaultPokemonList(data, listviewID) {
+                var output = "";
+                $.each(data, function (index, value) {
+                    var url = value.url;
+                    var id = parseInt(url.replace('http://pokeapi.co/api/v2/pokemon-form/', ''));
+                    output += '<li class="detail-pokemon-get" id="' + id + '"><a class="detail-pokemon"  ><img src="http://pokeapi.co/media/sprites/pokemon/' + id + '.png" />' + value.name + '</a></li>';
+                });
+                $(listviewID).append(output).listview('refresh');
+                $('.detail-pokemon-get').click(function () {
+                    var id = $(this).attr("id");
+                    alert(id);
+                });
             }
         </script>
         <style>
@@ -130,19 +247,17 @@
                     <li><a href="#my-pokemons">Mijn pokemons</a></li>
                     <li><a href="#location">Vang Pokemon</a></li>
                     <li><a href="#settings">Instellingen</a></li>
-                    <li><a href="http://pokeapi.co/">Pokedex api</a></li>
+                    <li><a href="#" onclick="cordova.InAppBrowser.open('http://pokeapi.co/', '_blank', 'location=yes')">Pokedex api</a></li>
                 </ul>
             </div>
             <div data-role="header" data-position="fixed">
-                <a href="#mypanel" class="ui-btn ui-btn-icon-left ui-icon-bars">Default panel</a>
+                <a href="#mypanel" class="ui-btn ui-btn-icon-left ui-icon-bars">Menu</a>
                 <h3>Pokedex</h3>
                 <div id="scrollNumber"></div>
             </div>
             <div data-role='content'>
                 <div class='example-wrapper'>
-                    <ul data-role="listview" id="pokemons">
-
-                    </ul>
+                    <ul data-role="listview" id="pokemons"></ul>
                 </div>
             </div>
             <div data-role="footer" data-position="fixed">
@@ -162,12 +277,29 @@
                         <img src="http://pokeapi.co/media/sprites/pokemon/back/1.png" />
                         <img src="http://pokeapi.co/media/sprites/pokemon/back/1.png" />
                     </div>
-
+                    <p><b>Experience:</b><span ></span></p>
                 </div>
             </div>
         </div>
         <div data-role='page' id='my-pokemons'>
-            my pokemons
+            <div data-role="panel" id="mypanel4">
+                <ul data-role="listview">
+                    <li><a href="#home">Alle pokemons</a></li>
+                    <li><a href="#my-pokemons">Mijn pokemons</a></li>
+                    <li><a href="#location">Vang Pokemon</a></li>
+                    <li><a href="#settings">Instellingen</a></li>
+                    <li><a href="http://pokeapi.co/">Pokedex api</a></li>
+                </ul>
+            </div>
+            <div data-role="header" data-position="fixed">
+                <a href="#mypanel4" class="ui-btn ui-btn-icon-left ui-icon-bars">Menu</a>
+                <h3>Mijn pokemons</h3>
+            </div>
+            <div data-role='content'>
+                <div class='example-wrapper'>
+                    <ul data-role="listview" id="myPokemonList"></ul>
+                </div>
+            </div>
         </div>
         <div data-role='page' id='location'>
             <div data-role="panel" id="mypanel3">
@@ -180,14 +312,12 @@
                 </ul>
             </div>
             <div data-role="header" data-position="fixed">
-                <a href="#mypanel3" class="ui-btn ui-btn-icon-left ui-icon-bars">Default panel</a>
+                <a href="#mypanel3" class="ui-btn ui-btn-icon-left ui-icon-bars">Menu</a>
                 <h3>Vang pokemon</h3>
             </div>
             <div data-role='content'>
                 <div class='example-wrapper'>
-                    <ul data-role="listview" id="catchPokemons">
-
-                    </ul>
+                    <ul data-role="listview" id="catchPokemons"></ul>
                 </div>
             </div>
         </div>
@@ -196,12 +326,13 @@
                 <ul data-role="listview">
                     <li><a href="#home">Alle pokemons</a></li>
                     <li><a href="#my-pokemons">Mijn pokemons</a></li>
+                    <li><a href="#location">Vang Pokemon</a></li>
                     <li><a href="#settings">Instellingen</a></li>
                     <li><a href="http://pokeapi.co/">Pokedex api</a></li>
                 </ul>
             </div>
             <div data-role="header" data-position="fixed">
-                <a href="#mypanel2" class="ui-btn ui-btn-icon-left ui-icon-bars">Default panel</a>
+                <a href="#mypanel2" class="ui-btn ui-btn-icon-left ui-icon-bars">Menu</a>
                 <h3>Instellingen</h3>
                 <div id="scrollNumber"></div>
             </div>
@@ -211,6 +342,7 @@
                 <input type="button" class="btn" id="saveSettings" value="Opslaan" />
             </div>
         </div>
+
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript">
