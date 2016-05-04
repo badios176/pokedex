@@ -15,6 +15,18 @@
                         {
                             "xml": "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />",
                             "count": 1
+                        },
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.MODIFY_AUDIO_SETTINGS\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\" />",
+                            "count": 1
                         }
                     ]
                 }
@@ -27,6 +39,10 @@
                             "count": 1
                         },
                         {
+                            "xml": "<feature name=\"InAppBrowser\"><param name=\"android-package\" value=\"org.apache.cordova.inappbrowser.InAppBrowser\" /></feature>",
+                            "count": 1
+                        },
+                        {
                             "xml": "<feature name=\"SplashScreen\"><param name=\"android-package\" value=\"org.apache.cordova.splashscreen.SplashScreen\" /><param name=\"onload\" value=\"true\" /></feature>",
                             "count": 1
                         },
@@ -35,7 +51,7 @@
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"InAppBrowser\"><param name=\"android-package\" value=\"org.apache.cordova.inappbrowser.InAppBrowser\" /></feature>",
+                            "xml": "<feature name=\"NativeAudio\"><param name=\"android-package\" value=\"com.rjfun.cordova.plugin.nativeaudio.NativeAudio\" /></feature>",
                             "count": 1
                         }
                     ]
@@ -47,13 +63,16 @@
         "cordova-plugin-geolocation": {
             "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
         },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
+        },
         "cordova-plugin-splashscreen": {
             "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
         },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
         },
-        "cordova-plugin-inappbrowser": {
+        "cordova-plugin-nativeaudio": {
             "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
         }
     },
@@ -74,6 +93,15 @@
             "runs": true
         },
         {
+            "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
+            "id": "cordova-plugin-inappbrowser.inappbrowser",
+            "pluginId": "cordova-plugin-inappbrowser",
+            "clobbers": [
+                "cordova.InAppBrowser.open",
+                "window.open"
+            ]
+        },
+        {
             "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
             "id": "cordova-plugin-splashscreen.SplashScreen",
             "pluginId": "cordova-plugin-splashscreen",
@@ -88,19 +116,19 @@
             "runs": true
         },
         {
-            "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
-            "id": "cordova-plugin-inappbrowser.inappbrowser",
-            "pluginId": "cordova-plugin-inappbrowser",
+            "file": "plugins/cordova-plugin-nativeaudio/www/nativeaudio.js",
+            "id": "cordova-plugin-nativeaudio.nativeaudio",
+            "pluginId": "cordova-plugin-nativeaudio",
             "clobbers": [
-                "cordova.InAppBrowser.open",
-                "window.open"
+                "window.plugins.NativeAudio"
             ]
         }
     ],
     "plugin_metadata": {
         "cordova-plugin-geolocation": "2.1.0",
+        "cordova-plugin-inappbrowser": "1.4.1-dev",
         "cordova-plugin-splashscreen": "3.2.1",
         "cordova-plugin-whitelist": "1.2.1",
-        "cordova-plugin-inappbrowser": "1.4.1-dev"
+        "cordova-plugin-nativeaudio": "3.0.6"
     }
 }

@@ -15,6 +15,15 @@ module.exports = [
         "runs": true
     },
     {
+        "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
+        "id": "cordova-plugin-inappbrowser.inappbrowser",
+        "pluginId": "cordova-plugin-inappbrowser",
+        "clobbers": [
+            "cordova.InAppBrowser.open",
+            "window.open"
+        ]
+    },
+    {
         "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
         "id": "cordova-plugin-splashscreen.SplashScreen",
         "pluginId": "cordova-plugin-splashscreen",
@@ -29,12 +38,11 @@ module.exports = [
         "runs": true
     },
     {
-        "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
-        "id": "cordova-plugin-inappbrowser.inappbrowser",
-        "pluginId": "cordova-plugin-inappbrowser",
+        "file": "plugins/cordova-plugin-nativeaudio/www/nativeaudio.js",
+        "id": "cordova-plugin-nativeaudio.nativeaudio",
+        "pluginId": "cordova-plugin-nativeaudio",
         "clobbers": [
-            "cordova.InAppBrowser.open",
-            "window.open"
+            "window.plugins.NativeAudio"
         ]
     }
 ];
@@ -42,9 +50,10 @@ module.exports.metadata =
 // TOP OF METADATA
 {
     "cordova-plugin-geolocation": "2.1.0",
+    "cordova-plugin-inappbrowser": "1.4.1-dev",
     "cordova-plugin-splashscreen": "3.2.1",
     "cordova-plugin-whitelist": "1.2.1",
-    "cordova-plugin-inappbrowser": "1.4.1-dev"
+    "cordova-plugin-nativeaudio": "3.0.6"
 }
 // BOTTOM OF METADATA
 });
