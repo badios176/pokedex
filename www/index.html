@@ -19,6 +19,7 @@
             var hiddenPokemons = [];
 
             var pokemonsCatched = [];
+            var cachedPokemons = [];
 
             var latlong = {
                 denbosch: {
@@ -41,7 +42,9 @@
                 }
 
                 var storedPokemons = JSON.parse(window.localStorage.getItem("pokemons"));
-                pokemonsCatched = storedPokemons;
+                if (storedPokemons) {
+                    pokemonsCatched = storedPokemons;
+                }
                 /*
                  
                  */
@@ -52,16 +55,23 @@
 
 
                 $(document).on('pagebeforeshow', '#detail-pokemon', function () {
-                    storePosition.topCoordinate = $(this).offset().top;
+                    //storePosition.topCoordinate = $(this).offset().top;
                 });
 
                 $(document).on('pagebeforeshow', '#my-pokemons', function () {
                     var output = "";
-                    $("#myPokemonList").html("");
-                    $.each(pokemonsCatched, function (index, value) {
-                        output += '<li><a class="detail-pokemon" id="' + value.id + '" href="#pokemon-detail"><img src="http://pokeapi.co/media/sprites/pokemon/' + value.id + '.png" />' + value.name + '</a></li>';
-                    });
-                    $("#myPokemonList").append(output).listview('refresh');
+                    if (pokemonsCatched) {
+                        $("#myPokemonList").html("");
+
+                        $.each(pokemonsCatched, function (index, value) {
+                            output += '<li><a class="detail-pokemon" id="' + value.id + '" href="#pokemon-detail"><img src="http://pokeapi.co/media/sprites/pokemon/' + value.id + '.png" />' + value.name + '</a></li>';
+                        });
+                        $("#myPokemonList").append(output).listview('refresh');
+                    }
+                });
+
+                $("#pokemon-detail").on("swiperight", function () {
+                    $.mobile.back();
                 });
 
                 var firstTimeTapCheck = false;
@@ -222,9 +232,35 @@
                 });
                 $(listviewID).append(output).listview('refresh');
                 $('.detail-pokemon-get').click(function () {
+
                     var id = $(this).attr("id");
-                    alert(id);
+                    var pokemonData = null;
+                    if (!cachedPokemons[id]) {
+                        $.mobile.loading('show');
+                        $.get('http://pokeapi.co/api/v2/pokemon/' + id, function (data) {
+                            cachedPokemons[id] = data;
+                            pokemonData = data;
+                            setDetailPage(pokemonData);
+                            $.mobile.loading('hide');
+                        });
+                    } else {
+                        pokemonData = cachedPokemons[id];
+                        setDetailPage(pokemonData);
+                    }
                 });
+            }
+
+            function setDetailPage(pokemonData) {
+                var output = "";
+                output += "<h1>" + pokemonData.name + "</h1>";
+                output += "<div><img src='" + pokemonData.sprites.front_default + "'/> <img src='" + pokemonData.sprites.back_default + "'/></div>";
+                output += "<ul>";
+                output += "<li><b>Base Experience:</b> " + pokemonData.base_experience + "</li>";
+                output += "<li><b>height:</b> " + pokemonData.height + "</li>";
+                output += "<li><b>weight:</b> " + pokemonData.weight + "</li>";
+                output += "</ul>";
+                $("#pokemon-detail-content").html(output);
+                $.mobile.changePage("#pokemon-detail");
             }
         </script>
         <style>
@@ -265,14 +301,8 @@
                 <h3>Pokedex</h3>
             </div>
             <div data-role='content'>
-                <div class='example-wrapper'>
-                    <h1>Pokemon Name</h1>
-                    <div class="row">
-                        <img src="http://pokeapi.co/media/sprites/pokemon/back/1.png" />
-                        <img src="http://pokeapi.co/media/sprites/pokemon/back/1.png" />
-                        <img src="http://pokeapi.co/media/sprites/pokemon/back/1.png" />
-                    </div>
-                    <p><b>Experience:</b><span ></span></p>
+                <div class='example-wrapper' id="pokemon-detail-content">
+
                 </div>
             </div>
         </div>
@@ -283,7 +313,7 @@
                     <li><a href="#my-pokemons">Mijn pokemons</a></li>
                     <li><a href="#location">Vang Pokemon</a></li>
                     <li><a href="#settings">Instellingen</a></li>
-                    <li><a href="http://pokeapi.co/">Pokedex api</a></li>
+                    <li><a href="#" onclick="cordova.InAppBrowser.open('http://pokeapi.co/', '_blank', 'location=yes')">Pokedex api</a></li>
                 </ul>
             </div>
             <div data-role="header" data-position="fixed">
@@ -303,7 +333,7 @@
                     <li><a href="#my-pokemons">Mijn pokemons</a></li>
                     <li><a href="#location">Vang Pokemon</a></li>
                     <li><a href="#settings">Instellingen</a></li>
-                    <li><a href="http://pokeapi.co/">Pokedex api</a></li>
+                    <li><a href="#" onclick="cordova.InAppBrowser.open('http://pokeapi.co/', '_blank', 'location=yes')">Pokedex api</a></li>
                 </ul>
             </div>
             <div data-role="header" data-position="fixed">
@@ -323,7 +353,7 @@
                     <li><a href="#my-pokemons">Mijn pokemons</a></li>
                     <li><a href="#location">Vang Pokemon</a></li>
                     <li><a href="#settings">Instellingen</a></li>
-                    <li><a href="http://pokeapi.co/">Pokedex api</a></li>
+                    <li><a href="#" onclick="cordova.InAppBrowser.open('http://pokeapi.co/', '_blank', 'location=yes')">Pokedex api</a></li>
                 </ul>
             </div>
             <div data-role="header" data-position="fixed">
@@ -341,7 +371,7 @@
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript">
-                    app.initialize();
+                        app.initialize();
         </script>
     </body>
 </html>   
