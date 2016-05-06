@@ -67,4 +67,5 @@
     <preference name="SplashShowOnlyFirstTime" value="true" />
     <preference name="SplashMaintainAspectRatio" value="true" />
     <preference name="ShowSplashScreenSpinner" value="true" />
+    <preference name="phonegap-version" value="2.9.0" />
 </widget>
