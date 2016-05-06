@@ -35,8 +35,8 @@
             };
 
             $(document).ready(function () {
-                $(".instagram").tap(function(){
-                   startInstagram(); 
+                $(".instagram").tap(function () {
+                    startInstagram();
                 });
                 document.addEventListener("deviceready", onDeviceReady, false);
                 function onDeviceReady() {
@@ -98,7 +98,7 @@
                         $('.loc-pokemon').click(function () {
                             var lat = $(this).attr("lat");
                             var long = $(this).attr("long");
-                            startMaps(lat,long);
+                            startMaps(lat, long);
                         });
                         firstTimeTapCheck = true;
                     }
@@ -280,21 +280,21 @@
             function startMaps(lat, long) {
                 window.plugins.webintent.startActivity({
                     action: window.plugins.webintent.ACTION_VIEW,
-                    url: 'geo:0,0?q='+lat+','+long},
+                    url: 'geo:0,0?q=' + lat + ',' + long},
                         function () {
-                            
+
                         },
                         function () {
                             alert('Failed to open URL via Android Intent')
                         });
             }
-            
-            function startInstagram(){
-                 window.plugins.webintent.startActivity({
+
+            function startInstagram() {
+                window.plugins.webintent.startActivity({
                     action: window.plugins.webintent.ACTION_VIEW,
                     url: 'http://instagram.com/_u/pokemon'},
                         function () {
-                            
+
                         },
                         function () {
                             alert('Failed to open URL via Android Intent')
@@ -413,7 +413,7 @@
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript">
-                        app.initialize();
+            app.initialize();
         </script>
     </body>
 </html>   

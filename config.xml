@@ -25,15 +25,13 @@
     <preference name="SplashMaintainAspectRatio" value="true" />
     <preference name="ShowSplashScreenSpinner" value="true" />
     
-    <preference name="phonegap-version" value="2.9.0"/> 
-    <feature name="http://api.phonegap.com/1.0/device"/> 
-    <feature name="http://api.phonegap.com/1.0/media" /> 
-    
     <gap:plugin name="org.apache.cordova.device" />
     <gap:plugin name="org.apache.cordova.geolocation" />
     <gap:plugin name="org.apache.cordova.splashscreen" />
     <gap:plugin name="org.apache.cordova.inappbrowser" />
     <gap:plugin name="org.apache.cordova.network-information" />
+    <gap:plugin name="org.apache.cordova.device" version="0.2.8" />
+    <gap:plugin name="org.apache.cordova.media" version="0.2.8" />
     <plugin name="com.borismus.webintent" spec="https://github.com/Initsogar/cordova-webintent.git" />
     <icon src="icon.png" />
     <icon density="ldpi" platform="android" src="www/res/icon/android/icon-36-ldpi.png" />
