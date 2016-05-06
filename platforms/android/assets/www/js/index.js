@@ -50,7 +50,7 @@ var app = {
 
         console.log('Received Event: ' + id);*/
         if (window.plugins && window.plugins.NativeAudio) {
-            window.plugins.NativeAudio.preloadSimple('main', 'sound/pokemon.mp3', function (msg) {
+            window.plugins.NativeAudio.preloadSimple('main', '/android_asset/www/sound/pokemon.mp3', function (msg) {
                 window.plugins.NativeAudio.loop('main');
             }, function (msg) {
                 console.log('error: ' + msg);
