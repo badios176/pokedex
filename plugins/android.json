@@ -24,7 +24,17 @@
         },
         "com.borismus.webintent": {
             "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
+        },
+        "cordova-plugin-media": {
+            "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
         }
     },
-    "dependent_plugins": {}
+    "dependent_plugins": {
+        "cordova-plugin-compat": {
+            "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
+        },
+        "cordova-plugin-file": {
+            "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
+        }
+    }
 }

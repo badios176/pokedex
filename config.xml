@@ -56,4 +56,5 @@
     </platform>
     <engine name="android" spec="~4.1.1" />
     <plugin name="com.borismus.webintent" spec="https://github.com/Initsogar/cordova-webintent.git" />
+    <plugin name="cordova-plugin-media" spec="~2.3.0" />
 </widget>
