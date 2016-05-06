@@ -21,6 +21,9 @@
         },
         "cordova-plugin-nativeaudio": {
             "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
+        },
+        "com.borismus.webintent": {
+            "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
         }
     },
     "dependent_plugins": {}

@@ -53,6 +53,10 @@
                         {
                             "xml": "<feature name=\"NativeAudio\"><param name=\"android-package\" value=\"com.rjfun.cordova.plugin.nativeaudio.NativeAudio\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"WebIntent\"><param name=\"android-package\" value=\"com.borismus.webintent.WebIntent\" /></feature>",
+                            "count": 1
                         }
                     ]
                 }
@@ -73,6 +77,9 @@
             "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
         },
         "cordova-plugin-nativeaudio": {
+            "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
+        },
+        "com.borismus.webintent": {
             "PACKAGE_NAME": "nl.avans.mdb1.s2035637"
         }
     },
@@ -122,6 +129,14 @@
             "clobbers": [
                 "window.plugins.NativeAudio"
             ]
+        },
+        {
+            "file": "plugins/com.borismus.webintent/www/webintent.js",
+            "id": "com.borismus.webintent.WebIntent",
+            "pluginId": "com.borismus.webintent",
+            "clobbers": [
+                "WebIntent"
+            ]
         }
     ],
     "plugin_metadata": {
@@ -129,6 +144,7 @@
         "cordova-plugin-inappbrowser": "1.4.1-dev",
         "cordova-plugin-splashscreen": "3.2.1",
         "cordova-plugin-whitelist": "1.2.1",
-        "cordova-plugin-nativeaudio": "3.0.6"
+        "cordova-plugin-nativeaudio": "3.0.6",
+        "com.borismus.webintent": "1.0.0"
     }
 }

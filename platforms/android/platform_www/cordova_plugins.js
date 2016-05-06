@@ -44,6 +44,14 @@ module.exports = [
         "clobbers": [
             "window.plugins.NativeAudio"
         ]
+    },
+    {
+        "file": "plugins/com.borismus.webintent/www/webintent.js",
+        "id": "com.borismus.webintent.WebIntent",
+        "pluginId": "com.borismus.webintent",
+        "clobbers": [
+            "WebIntent"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -53,7 +61,8 @@ module.exports.metadata =
     "cordova-plugin-inappbrowser": "1.4.1-dev",
     "cordova-plugin-splashscreen": "3.2.1",
     "cordova-plugin-whitelist": "1.2.1",
-    "cordova-plugin-nativeaudio": "3.0.6"
+    "cordova-plugin-nativeaudio": "3.0.6",
+    "com.borismus.webintent": "1.0.0"
 }
 // BOTTOM OF METADATA
 });

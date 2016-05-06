@@ -8,9 +8,6 @@
         <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
         <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
         <script>
-
-
-
             var pokemonLimit = 50;
             var currentPage = 0;
             var alreadyRequesting = false;
@@ -38,7 +35,9 @@
             };
 
             $(document).ready(function () {
-
+                $(".instagram").tap(function(){
+                   startInstagram(); 
+                });
                 document.addEventListener("deviceready", onDeviceReady, false);
                 function onDeviceReady() {
                     //window.open = cordova.InAppBrowser.open;
@@ -96,6 +95,11 @@
                                 }
                             });
                         });
+                        $('.loc-pokemon').click(function () {
+                            var lat = $(this).attr("lat");
+                            var long = $(this).attr("long");
+                            startMaps(lat,long);
+                        });
                         firstTimeTapCheck = true;
                     }
                 });
@@ -133,9 +137,6 @@
                 }, function (error) {
                     alert('Uw locatie moet aanstaan om een pokemon te vangen. Zet het aan en herstart de app!');
                 });
-
-
-
             });
 
             function saveCatchedPokemons() {
@@ -151,8 +152,10 @@
                     $(this).find('.pokemon-position').html($(this).attr("meters") + ' m');
                     if (meters < 3000) {
                         $(this).find('.catch-pokemon').show();
+                        $(this).find('.loc-pokemon').show();
                     } else {
                         $(this).find('.catch-pokemon').hide();
+                        $(this).find('.loc-pokemon').hide();
                     }
                 });
 
@@ -193,7 +196,11 @@
                         var pokemon = {id: id, name: value.name, image: image, lat: generateLat, long: generateLong}
                         if (pokemon.name) {
                             hiddenPokemons.push(pokemon);
-                            output += '<li pid="' + id + '" id="pokemon' + id + '" class="pokemon-catch-item" lat="' + pokemon.lat + '" long="' + pokemon.long + '"><img src="' + pokemon.image + '" />' + pokemon.name + ' <span class="pokemon-position"></span><button style="display:none"  class="btn catch-pokemon hide" pid="' + pokemon.id + '">Vang</button></li>';
+                            output += '<li pid="' + id + '" id="pokemon' + id + '" class="pokemon-catch-item" lat="' + pokemon.lat + '" long="' + pokemon.long + '">\n\
+                            <img src="' + pokemon.image + '" />' + pokemon.name + ' <span class="pokemon-position"></span>\n\
+                            <button style="display:none"  class="btn catch-pokemon hide" pid="' + pokemon.id + '">Vang</button>\n\
+                            <button style="display:none" lat="' + pokemon.lat + '" long="' + pokemon.long + '"  class="btn loc-pokemon hide" pid="' + pokemon.id + '">Maps</button>\n\
+                            </li>';
                         }
                     });
                     $("#catchPokemons").append(output).listview('refresh');
@@ -270,6 +277,30 @@
                 $("#pokemon-detail-content").html(output);
                 $.mobile.changePage("#pokemon-detail");
             }
+
+            function startMaps(lat, long) {
+                window.plugins.webintent.startActivity({
+                    action: window.plugins.webintent.ACTION_VIEW,
+                    url: 'geo:0,0?q='+lat+','+long},
+                        function () {
+                            
+                        },
+                        function () {
+                            alert('Failed to open URL via Android Intent')
+                        });
+            }
+            
+            function startInstagram(){
+                 window.plugins.webintent.startActivity({
+                    action: window.plugins.webintent.ACTION_VIEW,
+                    url: 'http://instagram.com/_u/pokemon'},
+                        function () {
+                            
+                        },
+                        function () {
+                            alert('Failed to open URL via Android Intent')
+                        });
+            }
         </script>
         <style>
             #pokemons ul li{
@@ -287,7 +318,7 @@
                     <li><a href="#location">Vang Pokemon</a></li>
                     <li><a href="#settings">Instellingen</a></li>
                     <li><a href="#" onclick="cordova.InAppBrowser.open('http://pokeapi.co/', '_blank', 'location=yes')">Pokedex api</a></li>
-                    <li><a href="#" onclick="cordova.InAppBrowser.open('instagram://','_system')">Facebook</a></li>
+                    <li><a href="#" class="instagram" onclick="">Instagram</a></li>
                 </ul>
             </div>
             <div data-role="header" data-position="fixed">
