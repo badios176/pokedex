@@ -152,11 +152,10 @@
                     $(this).find('.pokemon-position').html($(this).attr("meters") + ' m');
                     if (meters < 3000) {
                         $(this).find('.catch-pokemon').show();
-                        $(this).find('.loc-pokemon').show();
                     } else {
                         $(this).find('.catch-pokemon').hide();
-                        $(this).find('.loc-pokemon').hide();
                     }
+                    $(this).find('.loc-pokemon').show();
                 });
 
                 $("#catchPokemons li").sort(sort_pokemon_distance).appendTo('#catchPokemons');
